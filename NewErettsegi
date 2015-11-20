@@ -1,0 +1,153 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+
+namespace robot
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            #region 1. feladat - beolvasás
+            StreamReader be = new StreamReader("program.txt");
+            int db = Convert.ToInt32(be.ReadLine());
+            string[] prog = new string[db];
+            for (int i = 0; i < db; i++)
+            {
+                prog[i] = be.ReadLine();
+            }
+            be.Close();
+            #endregion
+            #region 2. feladat - egy kódsor jellemzése
+            Console.WriteLine("2. feladat: Kérem az utasítássor sorszámát!");
+            int ssz = Convert.ToInt32(Console.ReadLine()) - 1;
+            Console.WriteLine((prog[ssz].Contains("DE") || prog[ssz].Contains("ED") || prog[ssz].Contains("NK") || prog[ssz].Contains("KN")) ? "egyszerüsíthető" : "nem egyszerüsíthető");
+            int[] irany = { 0, 0, 0, 0 };
+            int[] hely = { 0, 0 };
+            double maxtáv = 0;
+            int maxhely = 0;
+            for (int i = 0; i < prog[ssz].Length; i++)
+            {
+                switch (prog[ssz][i])
+                {
+                    case 'E':
+                        irany[0]++;
+                        hely[0]++;
+                        break;
+                    case 'K':
+                        irany[1]++;
+                        hely[1]++;
+                        break;
+                    case 'D':
+                        irany[2]++;
+                        hely[0]--;
+                        break;
+                    case 'N':
+                        irany[3]++;
+                        hely[1]--;
+                        break;
+                    default: break;
+                }
+                if (Math.Sqrt(hely[0] * hely[0] + hely[1] * hely[1]) > maxtáv)
+                {
+                    maxtáv = Math.Sqrt(hely[0] * hely[0] + hely[1] * hely[1]);
+                    maxhely = i + 1;
+                }
+            }
+            Console.WriteLine("{0} lépést kell tenni az {1}, {2} lépést a {3} tengely mentén", Math.Abs(irany[2] - irany[0]), (irany[2] - irany[0]) > 0 ? "DE" : "ED", Math.Abs(irany[3] - irany[1]), (irany[3] - irany[1]) > 0 ? "NK" : "KN");
+            Console.WriteLine("{0}. lépés után {1:F3}", maxhely, maxtáv);
+            #endregion
+            #region 3. feladat - energia
+            Console.WriteLine("3. feladat");
+            int E;
+            for (int i = 0; i < db; i++)
+            {
+                E = 2 + prog[i].Length;
+                for (int j = 1; j < prog[i].Length; j++)
+                {
+                    if (prog[i][j - 1] != prog[i][j])
+                    {
+                        E += 2;
+                    }
+                }
+                if (E < 100)
+                {
+                    Console.WriteLine("{0}, {1}", i + 1, E);
+                }
+            }
+            #endregion
+            #region 4. feladat - tömörítés
+            int k;
+            int l;
+            char ch;
+            string[] ujprog = new string[db];
+            StreamWriter ki = new StreamWriter("ujprog.txt");
+            for (int i = 0; i < db; i++)
+            {
+                k = 1;
+                l = 1;
+                ch = prog[i][0];
+                ujprog[i] = "";
+                while (l < prog[i].Length)
+                {
+                    if (prog[i][l - 1] == prog[i][l])
+                    {
+                        k++;
+                    }
+                    else
+                    {
+                        if (k == 1)
+                        {
+                            ujprog[i] = ujprog[i] + Convert.ToString(prog[i][l - 1]);
+                        }
+                        else
+                        {
+                            ujprog[i] = ujprog[i] + Convert.ToString(k) + Convert.ToString(prog[i][l - 1]);
+                            k = 1;
+                        }
+                    }
+                    l++;
+                }
+                if (k == 1)
+                {
+                    ujprog[i] = ujprog[i] + Convert.ToString(prog[i][l-1]);
+                }
+                else
+                {
+                    ujprog[i] = ujprog[i] + Convert.ToString(k) + Convert.ToString(prog[i][l-1]);
+                    k = 1;
+                }
+                ki.WriteLine(ujprog[i]);
+            }
+            ki.Close();
+            #endregion
+            #region 5. feladat - visszaírás
+            Console.WriteLine("5. feladat: Adja meg a program tömör formáját!");
+            string progi = Console.ReadLine();
+            k = 0;
+            for (int i = 0; i < progi.Length; i++)
+            {
+                if ((progi[i] == 'E') || (progi[i] == 'K') || (progi[i] == 'N') || (progi[i] == 'D'))
+                {
+                    if (k==0)
+                    {
+                        k = 1;
+                    }
+                    while (k>0)
+                    {
+                        Console.Write(progi[i]);
+                        k--;
+                    }
+                }
+                else
+                {
+                    k = k * 10 + (int) progi[i]-48;
+                }
+            }
+            #endregion
+            Console.ReadLine();
+        }
+    }
+}
